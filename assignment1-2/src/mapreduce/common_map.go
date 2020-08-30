@@ -34,8 +34,8 @@ func doMap(
 	}
 
 	for _, kv := range keyValues {
-		fileID := int(ihash(kv.Key)) % nReduce
-		fileName := reduceName(jobName, mapTaskNumber, fileID)
+		fileID := ihash(kv.Key) % uint32(nReduce)
+		fileName := reduceName(jobName, mapTaskNumber, int(fileID))
 		err := encoders[fileName].Encode(&kv)
 		checkError(err)
 	}
