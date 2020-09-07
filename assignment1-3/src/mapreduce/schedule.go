@@ -1,11 +1,11 @@
 package mapreduce
 
 import (
-	"fmt"
 	"sync"
 )
 
 func (mr *Master) dispatchWorker(task int, nOtherPhase int, phase jobPhase, wg *sync.WaitGroup) {
+	debug("Starting worker: %v\n", task)
 	worker := <-mr.registerChannel
 
 	var args DoTaskArgs
@@ -22,7 +22,7 @@ func (mr *Master) dispatchWorker(task int, nOtherPhase int, phase jobPhase, wg *
 	} else {
 		// if the master's RPC to the worker fails,
 		// the master should re-assign the task given to the failed worker to another worker.
-		fmt.Printf("Worker failed with task: %v\n", task)
+		debug("Worker failed with task: %v\n", task)
 		mr.dispatchWorker(task, nOtherPhase, phase, wg)
 	}
 }
@@ -52,7 +52,6 @@ func (mr *Master) schedule(phase jobPhase) {
 	for task := 0; task < ntasks; task++ {
 		workerGroup.Add(1)
 		go mr.dispatchWorker(task, nios, phase, &workerGroup)
-		// add debug prints
 	}
 	workerGroup.Wait()
 
